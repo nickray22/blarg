@@ -2,7 +2,7 @@ require "blarg/version"
 require 'pry'
 require 'camping'
 
-BLOG_REPO = '/Users/brit/projects/improvedmeans/'
+BLOG_REPO = '/Users/nray1/improvedmeans/'
 
 Camping.goes :Blarg
 
@@ -187,6 +187,39 @@ end
 
 def Blarg.create
   Blarg::Models.create_schema
+end
+
+def top_tags
+  result = {}
+  Blarg::Models::Post.find_each do |post|
+    post.tags.each do |tag|
+      if result[tag].nil?
+        result[tag] = 1
+      else
+        result[tag] += 1
+      end
+    end
+  end
+  list = result.sort_by { |key, value| value }.reverse[0..9].to_h
+  list.each do |key, value|
+    puts "#{key}: #{value}"
+  end
+end
+
+#def top_months
+#  Blarg::Models::Post.group("strftime('%m', date)").count.sort_by { |key, value| value }.reverse[0..5].each do |key, value|
+#    puts "#{key}: #{value}"
+#  end
+#end
+
+def top_months
+  Blarg::Models::Post.group("strftime('%m', date)").order('count_id desc').limit(6).count('id').each do |key, value|
+    puts "#{key}: #{value}"
+  end
+end
+
+def top_words
+  Blarg::Models::Post.select(:title).to_a
 end
 
 #blog = BlogApp.new
